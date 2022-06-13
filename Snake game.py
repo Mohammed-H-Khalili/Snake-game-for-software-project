@@ -1,39 +1,39 @@
-##### به نام خدا #####
-#### پروژه نرم افزار ####
-### نام استاد: اعظم باستان فرد ###
-## محمدحسین خلیلی ##
-# شماره دانشجویی 960181129 #
+# In the name of God
+# Software engineering project
+# 2D Snake Game 
+# Mohammed Hussain Khalili 
+# Student No:960181129   
 
 import math
 import random
 from tkinter import messagebox
+from turtle import circle
 import pygame
 from tkinter import *
 
-#تعریف اندازه پنجره بازی
-class cube(object):
+class Cube(object):
     rows = 20
     w = 500
     
-    #تعریف بدنه مار
+    #start point
     def __init__(self, start, dirnx=1, dirny=0, color=(0, 0, 255)):
         self.pos = start
         self.dirnx = 1
         self.dirny = 0
         self.color = color
-        
-    # نقطه شروع
+    
+    #Snake movement function
     def move(self, dirnx, dirny):
         self.dirnx = dirnx
         self.dirny = dirny
         self.pos = (self.pos[0] + self.dirnx, self.pos[1] + self.dirny)
 
-    # تعریف چشم های مار
+    # Snake eyes
     def draw(self, surface, eyes=False):
         dis = self.w // self.rows
         i = self.pos[0]
         j = self.pos[1]
-
+        
         pygame.draw.rect(surface, self.color, (i * dis + 1, j * dis + 1, dis - 2, dis - 2))
         if eyes:
             centre = dis // 2
@@ -46,43 +46,47 @@ class cube(object):
 class snake(object):
     body = []
     turns = {}
-
     def __init__(self, color, pos):
         self.color = color
-        self.head = cube(pos)
+        self.head = Cube(pos)
         self.body.append(self.head)
         self.dirnx = 0
         self.dirny = 1
-
-    # نحوه حرکت مار
+        
     def move(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
-
             keys = pygame.key.get_pressed()
 
+            
             for key in keys:
+                
+                #move left
                 if keys[pygame.K_LEFT]:
                     self.dirnx = -1
                     self.dirny = 0
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
-
+                    
+                #Move Right
                 elif keys[pygame.K_RIGHT]:
                     self.dirnx = 1
                     self.dirny = 0
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
 
+                #Move Down
                 elif keys[pygame.K_UP]:
                     self.dirnx = 0
                     self.dirny = -1
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
 
+                #Move Up
                 elif keys[pygame.K_DOWN]:
                     self.dirnx = 0
                     self.dirny = 1
                     self.turns[self.head.pos[:]] = [self.dirnx, self.dirny]
 
+        #Change direction
         for i, c in enumerate(self.body):
             p = c.pos[:]
             if p in self.turns:
@@ -103,26 +107,26 @@ class snake(object):
                     c.move(c.dirnx, c.dirny)
 
     def reset(self, pos):
-        self.head = cube(pos)
+        self.head = Cube(pos)
         self.body = []
         self.body.append(self.head)
         self.turns = {}
         self.dirnx = 0
         self.dirny = 1
 
-    # بزرگ شدن مار   
+    # Growing Snake   
     def addCube(self):
         tail = self.body[-1]
         dx, dy = tail.dirnx, tail.dirny
 
         if dx == 1 and dy == 0:
-            self.body.append(cube((tail.pos[0] - 1, tail.pos[1])))
+            self.body.append(Cube((tail.pos[0] - 1, tail.pos[1])))
         elif dx == -1 and dy == 0:
-            self.body.append(cube((tail.pos[0] + 1, tail.pos[1])))
+            self.body.append(Cube((tail.pos[0] + 1, tail.pos[1])))
         elif dx == 0 and dy == 1:
-            self.body.append(cube((tail.pos[0], tail.pos[1] - 1)))
+            self.body.append(Cube((tail.pos[0], tail.pos[1] - 1)))
         elif dx == 0 and dy == -1:
-            self.body.append(cube((tail.pos[0], tail.pos[1] + 1)))
+            self.body.append(Cube((tail.pos[0], tail.pos[1] + 1)))
 
         self.body[-1].dirnx = dx
         self.body[-1].dirny = dy
@@ -134,7 +138,7 @@ class snake(object):
             else:
                 c.draw(surface)
 
-# ضمیه ی شطرنجی بازی
+# Background Grid
 def drawGrid(w, rows, surface):
     sizeBtwn = w // rows
 
@@ -147,7 +151,7 @@ def drawGrid(w, rows, surface):
         pygame.draw.line(surface, (0, 0, 0), (x, 0), (x, w))
         pygame.draw.line(surface, (0, 0, 0), (0, y), (w, y))
 
-# پس ضمینه ی بازی
+# background & Objects in the background
 def redrawWindow(surface):
     global rows, width, s, snack
     surface.fill((255, 255, 255))
@@ -155,10 +159,10 @@ def redrawWindow(surface):
     snack.draw(surface)
     drawGrid(width, rows, surface)
     pygame.display.update()
-
+    
+#The Appearance of Snack
 def randomSnack(rows, item):
     positions = item.body
-
     while True:
         x = random.randrange(rows)
         y = random.randrange(rows)
@@ -166,9 +170,9 @@ def randomSnack(rows, item):
             continue
         else:
             break
-
     return (x, y)
 
+#message box
 def message_box(subject, content):
     root = Tk()
     root.attributes("-topmost", True)
@@ -187,32 +191,27 @@ def main():
     rows = 20
     win = pygame.display.set_mode((width, width))
     s = snake((255, 0, 0), (10, 10))
-    snack = cube(randomSnack(rows, s), color=(225, 0, 0))
+    snack = Cube(randomSnack(rows, s), color=(225, 0, 0))
     flag = True
-
     clock = pygame.time.Clock()
-
+    
+    
     while flag:
         pygame.time.delay(50)
-        clock.tick(10)
+        clock.tick(15)
         s.move()
         if s.body[0].pos == snack.pos:
             s.addCube()
-            snack = cube(randomSnack(rows, s), color=(255, 0, 0))
+            snack = Cube(randomSnack(rows, s), color=(255, 0, 0))
 
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z: z.pos, s.body[x + 1:])):
-                a = len(s.body)
-                print('Score: ', len(s.body))
+                Score=len(s.body)
+                print('Score : ', len(s.body))
+                message_box('Score : ', len(s.body))
                 message_box("You've Lost !", 'Play again...')
-                # message_box('Score: ', len(s.body))
-                # message_box('You Lost!', 'Play again...')
                 s.reset((10, 10))
                 break
-
         redrawWindow(win)
-
     pass
-
-
 main()
